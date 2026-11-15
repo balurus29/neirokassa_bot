@@ -57,6 +57,22 @@ def parse_feed(xml_text: str) -> list[dict]:
     return result
 
 
+AI_ABBR = re.compile(r"\b(ИИ|AI|GPT|LLM|ML)\b")
+AI_WORDS = ("нейросет", "нейронн", "искусственн", "машинн", "chatgpt", "gigachat", "deepseek",
+            "qwen", "алиса ai", "kandinsky", "шедеврум", "генеративн", "языков", "промпт", "ии-")
+
+
+def is_about_ai(item: dict) -> bool:
+    text = f"{item['title']} {item['summary']}"
+    low = text.lower()
+    return bool(AI_ABBR.search(text)) or any(w in low for w in AI_WORDS)
+
+
+def clean_link(link: str) -> str:
+    """Убирает из ссылки метки utm_ и прочий хвост после ?."""
+    return link.split("?", 1)[0].split("#", 1)[0]
+
+
 def fresh_items(seen_links: set[str]) -> list[dict]:
     feeds = json.loads((config.DATA / "feeds.json").read_text(encoding="utf-8"))
     items = []
@@ -67,6 +83,8 @@ def fresh_items(seen_links: set[str]) -> list[dict]:
             items.extend(parse_feed(resp.text))
         except Exception as exc:  # одна сломанная лента не должна ронять бота
             print(f"[news] пропускаю {url}: {exc}")
-    items = [i for i in items if i["link"] not in seen_links]
+    for i in items:
+        i["link"] = clean_link(i["link"])
+    items = [i for i in items if i["link"] not in seen_links and is_about_ai(i)]
     items.sort(key=lambda i: i["date"], reverse=True)
     return items

@@ -45,6 +45,16 @@ def pixabay_image(query: str) -> bytes | None:
         return None
 
 
+def tidy(text: str) -> str:
+    """Убирает markdown, пробелы в концах строк и лишние пустые строки."""
+    lines = [line.rstrip() for line in content.strip_markdown(text).splitlines()]
+    out = []
+    for line in lines:
+        if line or (out and out[-1]):
+            out.append(line)
+    return "\n".join(out).strip()
+
+
 def publish(text: str, image_query: str | None = None, extra: list[str] | None = None) -> None:
     if config.DRY_RUN:
         print("----- DRY RUN -----\n" + text + "\n-------------------")
@@ -60,21 +70,26 @@ def publish(text: str, image_query: str | None = None, extra: list[str] | None =
 
 def morning(state: dict) -> None:
     items = news.fresh_items(set(state["posted_links"]))
-    if not items:
-        print("Свежих новостей нет — утренний пост пропущен")
+    for item in items[:5]:
+        text = gigachat.ask(
+            content.SYSTEM_PROMPT,
+            "Ниже новость. Если она не про нейросети или искусственный интеллект, ответь одним словом SKIP.\n"
+            "Иначе напиши пост: первой строкой короткий заголовок, затем 2–3 коротких абзаца — "
+            "что произошло и кому это может пригодиться. "
+            "Используй только факты из текста ниже. Не делай выводов шире, чем в тексте, "
+            "не обещай выгод, которых там нет. Без подписей вроде «Что произошло:».\n\n"
+            f"Заголовок: {item['title']}\nТекст: {item['summary']}",
+            temperature=0.3,
+        )
+        state["posted_links"].append(item["link"])  # не возвращаемся к ней, даже если SKIP
+        if text.strip().upper().startswith("SKIP"):
+            print(f"[news] не по теме, пропускаю: {item['title']}")
+            continue
+        post = f"{tidy(text)}\n\nИсточник: {item['link']}"
+        publish(post, IMAGE_QUERIES["news"])
+        state["week_news"].append(item["title"])
         return
-    item = items[0]
-    text = gigachat.ask(
-        content.SYSTEM_PROMPT,
-        "Перескажи новость для подписчиков: что произошло и чем это полезно обычному человеку. "
-        "Опирайся только на текст ниже, ничего не добавляй от себя.\n\n"
-        f"Заголовок: {item['title']}\nТекст: {item['summary']}",
-        temperature=0.4,
-    )
-    post = f"{content.strip_markdown(text)}\n\nИсточник: {item['link']}"
-    publish(post, IMAGE_QUERIES["news"])
-    state["posted_links"].append(item["link"])
-    state["week_news"].append(item["title"])
+    print("Подходящих новостей нет — утренний пост пропущен")
 
 
 def day(state: dict, today) -> None:
@@ -86,7 +101,7 @@ def day(state: dict, today) -> None:
         f"и как решить её нейросетью по шагам. Не повторяй темы: {recent}.\n"
         f"Сервисы, которые можно упоминать:\n{content.catalog_text(key)}",
     )
-    text = content.strip_markdown(text)
+    text = tidy(text)
     state["recent_topics"].append(text.splitlines()[0][:80])
     publish(text, IMAGE_QUERIES[key])
 
@@ -111,7 +126,7 @@ def evening(state: dict, today) -> None:
             f"по одной строке на новость, без новых фактов.\n{titles}",
             temperature=0.4,
         )
-        publish(f"{content.strip_markdown(text)}\n\n{content.GUIDE_CTA}", IMAGE_QUERIES["news"])
+        publish(f"{tidy(text)}\n\n{content.GUIDE_CTA}", IMAGE_QUERIES["news"])
         state["week_news"] = []
         return
 
@@ -125,7 +140,7 @@ def evening(state: dict, today) -> None:
         f"Рубрика «{name}». Тема недели: {label}. {task}{extra_info}\n"
         f"Сервисы, которые можно упоминать:\n{content.catalog_text(key)}",
     )
-    post = f"{content.HASHTAGS[name]}\n{content.strip_markdown(text)}"
+    post = f"{content.HASHTAGS[name]}\n{tidy(text)}"
     if offer:
         subid = f"{today:%Y%m%d}_{name.replace(' ', '')}"
         post += "\n\n" + content.ad_block(offer, subid)
