@@ -62,10 +62,12 @@ def create_poll(question: str, answers: list[str]) -> str:
 
 
 def wall_post(message: str, attachments: list[str] | None = None) -> int:
+    """Публикует пост. Если ключа пользователя нет — пробует ключом сообщества."""
     params = dict(owner_id=-config.VK_GROUP_ID, from_group=1, message=message)
     if attachments:
         params["attachments"] = ",".join(attachments)
-    return call("wall.post", config.VK_USER_TOKEN, **params)["post_id"]
+    token = config.VK_USER_TOKEN or config.VK_GROUP_TOKEN
+    return call("wall.post", token, **params)["post_id"]
 
 
 # ---------- Сообщения (ключ сообщества) ----------

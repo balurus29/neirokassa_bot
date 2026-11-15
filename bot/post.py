@@ -60,7 +60,8 @@ def publish(text: str, image_query: str | None = None, extra: list[str] | None =
         print("----- DRY RUN -----\n" + text + "\n-------------------")
         return
     attachments = list(extra or [])
-    if image_query:
+    # Загрузка фото на стену работает только с ключом пользователя.
+    if image_query and config.VK_USER_TOKEN:
         img = pixabay_image(image_query)
         if img:
             attachments.append(vk.upload_wall_photo(img))
@@ -113,7 +114,9 @@ def evening(state: dict, today) -> None:
     if name == "Опрос":
         question = "Чем вы пользуетесь для задач по теме «" + label + "»?"
         options = [s["name"] for s in content.load_catalog().get(key, [])][:4] + ["Пока ничем"]
-        extra = [] if config.DRY_RUN else [vk.create_poll(question, options)]
+        extra = [vk.create_poll(question, options)] if (config.VK_USER_TOKEN and not config.DRY_RUN) else []
+        if not extra:  # без ключа пользователя опрос не создать — просим ответить в комментариях
+            question += "\nОтветь в комментариях: " + " / ".join(options)
         publish(f"📊 Опрос недели\n\n{question}\nПо ответам выберем, о чём сделать следующие обзоры.",
                 extra=extra)
         return
