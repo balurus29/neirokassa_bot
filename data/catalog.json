@@ -1,0 +1,23 @@
+{
+  "_comment": "Бесплатные сервисы для подборщика и для упоминаний в постах. Проверены по обзору Битрикс24 от 06.11.2026 — перед запуском открой каждый сам.",
+  "texts": [
+    {"name": "GigaChat", "by": "Сбер", "what": "тексты, код, картинки через Kandinsky", "price": "бесплатно с лимитами", "url": "https://giga.chat"},
+    {"name": "Алиса AI", "by": "Яндекс", "what": "тексты и поиск с источниками", "price": "база бесплатно", "url": "https://alice.yandex.ru"},
+    {"name": "DeepSeek", "by": "Китай", "what": "тексты, код, анализ файлов", "price": "бесплатно, бывают сбои", "url": "https://chat.deepseek.com"}
+  ],
+  "images": [
+    {"name": "Шедеврум", "by": "Яндекс", "what": "картинки и короткие видео", "price": "бесплатно", "url": "https://shedevrum.ai"},
+    {"name": "Kandinsky", "by": "Сбер", "what": "картинки и видео", "price": "бесплатно", "url": "https://www.sberbank.com/promo/kandinsky/"}
+  ],
+  "video": [
+    {"name": "Kling", "by": "Kuaishou", "what": "видео по тексту и фото", "price": "ежедневные бесплатные кредиты, оплата только зарубежной картой", "url": "https://klingai.com"},
+    {"name": "Шедеврум", "by": "Яндекс", "what": "короткие видео", "price": "бесплатно", "url": "https://shedevrum.ai"}
+  ],
+  "study": [
+    {"name": "Алиса AI", "by": "Яндекс", "what": "объяснения и поиск с источниками", "price": "база бесплатно", "url": "https://alice.yandex.ru"},
+    {"name": "Qwen", "by": "Alibaba", "what": "тексты, файлы, картинки", "price": "бесплатно", "url": "https://chat.qwen.ai"}
+  ],
+  "bots": [
+    {"name": "GigaChat API", "by": "Сбер", "what": "нейросеть для своего бота", "price": "есть бесплатный лимит", "url": "https://developers.sber.ru/studio"}
+  ]
+}
