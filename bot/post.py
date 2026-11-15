@@ -60,11 +60,13 @@ def publish(text: str, image_query: str | None = None, extra: list[str] | None =
         print("----- DRY RUN -----\n" + text + "\n-------------------")
         return
     attachments = list(extra or [])
-    # Загрузка фото на стену работает только с ключом пользователя.
-    if image_query and config.VK_USER_TOKEN:
+    if image_query:
         img = pixabay_image(image_query)
         if img:
-            attachments.append(vk.upload_wall_photo(img))
+            try:
+                attachments.append(vk.upload_wall_photo(img))
+            except Exception as exc:  # без картинки пост всё равно выходит
+                print(f"[image] не удалось загрузить фото: {exc}")
     post_id = vk.wall_post(text, attachments)
     print(f"Опубликован пост {post_id}")
 

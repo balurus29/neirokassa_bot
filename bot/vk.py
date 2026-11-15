@@ -36,7 +36,7 @@ def call(method: str, token: str, **params):
 
 def upload_wall_photo(image_bytes: bytes) -> str:
     """Загружает картинку для поста в сообщество, возвращает attachment."""
-    token = config.VK_USER_TOKEN
+    token = config.VK_USER_TOKEN or config.VK_GROUP_TOKEN
     server = call("photos.getWallUploadServer", token, group_id=config.VK_GROUP_ID)
     up = requests.post(
         server["upload_url"],
