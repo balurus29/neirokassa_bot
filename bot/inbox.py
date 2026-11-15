@@ -71,19 +71,33 @@ def classify(message: dict) -> tuple[str, str | None]:
     return "unknown", None
 
 
-def run() -> None:
-    answered = 0
-    for conv in vk.unanswered_conversations():
-        message = conv.get("last_message", {})
-        peer_id = conv["conversation"]["peer"]["id"]
-        kind, key = classify(message)
+def answer(peer_id: int, messages: list[dict]) -> bool:
+    """Отвечает на каждое понятное сообщение по разу (не больше 3 ответов за раз)."""
+    done = []
+    for message in messages:
+        intent = classify(message)
+        if intent[0] == "unknown" or intent in done:
+            continue
+        done.append(intent)
+    for kind, key in done[-3:]:
         if kind == "start":
             vk.send_message(peer_id, GREETING, keyboard())
         elif kind == "guide":
             vk.send_message(peer_id, guide_text(), keyboard())
         elif kind == "pick":
             vk.send_message(peer_id, pick_text(key), keyboard())
-        else:
-            continue
-        answered += 1
+    return bool(done)
+
+
+def run() -> None:
+    answered = 0
+    for conv in vk.unanswered_conversations():
+        peer_id = conv["conversation"]["peer"]["id"]
+        try:
+            messages = vk.unanswered_messages(peer_id)
+        except vk.VKError as exc:
+            print(f"[inbox] история недоступна ({exc}), отвечаю на последнее сообщение")
+            messages = [conv.get("last_message", {})]
+        if answer(peer_id, messages or [conv.get("last_message", {})]):
+            answered += 1
     print(f"Отвечено диалогов: {answered}")

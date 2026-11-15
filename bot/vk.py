@@ -80,6 +80,18 @@ def unanswered_conversations(count: int = 50) -> list[dict]:
     return resp.get("items", [])
 
 
+def unanswered_messages(peer_id: int, count: int = 20) -> list[dict]:
+    """Входящие сообщения после последнего ответа сообщества, от старых к новым."""
+    resp = call("messages.getHistory", config.VK_GROUP_TOKEN,
+                peer_id=peer_id, count=count, group_id=config.VK_GROUP_ID)
+    incoming = []
+    for msg in resp.get("items", []):  # от новых к старым
+        if msg.get("out"):
+            break
+        incoming.append(msg)
+    return list(reversed(incoming))
+
+
 def send_message(peer_id: int, text: str, keyboard: dict | None = None) -> None:
     params = dict(peer_id=peer_id, message=text, random_id=random.randint(1, 2**31 - 1),
                   dont_parse_links=0)
