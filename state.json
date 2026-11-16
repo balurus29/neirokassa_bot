@@ -1,13 +1,16 @@
 {
   "posted_links": [
-    "https://habr.com/ru/articles/1108164/"
+    "https://habr.com/ru/articles/1108164/",
+    "https://techcrunch.com/2026/11/16/openai-releases-a-new-image-classifier-and-chatgpt-warnings-to-combat-csam/"
   ],
   "week_news": [
-    "Уволили специалистов ради ИИ. А кто через пять лет будет ставить ему задачи?"
+    "Уволили специалистов ради ИИ. А кто через пять лет будет ставить ему задачи?",
+    "OpenAI releases a new image classifier and ChatGPT warnings to combat CSAM"
   ],
   "recent_topics": [
     "Написать шаблон письма клиентам? Легко!",
     "Написать уникальное сочинение для школы? Попробуй нейросеть!"
   ],
-  "offer_index": 0
+  "offer_index": 0,
+  "topic_index": {}
 }
