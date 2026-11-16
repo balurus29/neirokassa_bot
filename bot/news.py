@@ -3,7 +3,7 @@ import json
 import re
 import xml.etree.ElementTree as ET
 from email.utils import parsedate_to_datetime
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 import requests
 
@@ -24,16 +24,18 @@ def _text(el, *names):
 
 
 def _date(raw: str):
-    if not raw:
+    dt = None
+    if raw:
+        try:
+            dt = parsedate_to_datetime(raw)
+        except (TypeError, ValueError):
+            try:
+                dt = datetime.fromisoformat(raw.replace("Z", "+00:00"))
+            except ValueError:
+                dt = None
+    if dt is None:
         return datetime.min.replace(tzinfo=timezone.utc)
-    try:
-        return parsedate_to_datetime(raw)
-    except (TypeError, ValueError):
-        pass
-    try:
-        return datetime.fromisoformat(raw.replace("Z", "+00:00"))
-    except ValueError:
-        return datetime.min.replace(tzinfo=timezone.utc)
+    return dt if dt.tzinfo else dt.replace(tzinfo=timezone.utc)
 
 
 def _clean(html: str) -> str:
@@ -59,7 +61,9 @@ def parse_feed(xml_text: str) -> list[dict]:
 
 AI_ABBR = re.compile(r"\b(ИИ|AI|GPT|LLM|ML)\b")
 AI_WORDS = ("нейросет", "нейронн", "искусственн", "машинн", "chatgpt", "gigachat", "deepseek",
-            "qwen", "алиса ai", "kandinsky", "шедеврум", "генеративн", "языков", "промпт", "ии-")
+            "qwen", "алиса ai", "kandinsky", "шедеврум", "генеративн", "языков", "промпт", "ии-",
+            "openai", "anthropic", "gemini", "claude", "midjourney", "sora", "copilot", "mistral",
+            "llama", "perplexity", "chatbot", "neural", "generative", "language model", "kling")
 
 
 def is_about_ai(item: dict) -> bool:
@@ -86,5 +90,9 @@ def fresh_items(seen_links: set[str]) -> list[dict]:
     for i in items:
         i["link"] = clean_link(i["link"])
     items = [i for i in items if i["link"] not in seen_links and is_about_ai(i)]
+    # Не старше трёх дней: «новинки» должны быть новыми.
+    fresh_after = datetime.now(timezone.utc) - timedelta(days=3)
+    recent = [i for i in items if i["date"] >= fresh_after]
+    items = recent or items
     items.sort(key=lambda i: i["date"], reverse=True)
     return items

@@ -34,26 +34,44 @@ def call(method: str, token: str, **params):
 
 # ---------- Стена (ключ пользователя) ----------
 
-def upload_wall_photo(image_bytes: bytes) -> str:
-    """Загружает картинку для поста в сообщество, возвращает attachment."""
-    token = config.VK_USER_TOKEN or config.VK_GROUP_TOKEN
-    server = call("photos.getWallUploadServer", token, group_id=config.VK_GROUP_ID)
-    up = requests.post(
-        server["upload_url"],
+def _upload(server_url: str, image_bytes: bytes) -> dict:
+    return requests.post(
+        server_url,
         files={"photo": ("image.jpg", image_bytes, "image/jpeg")},
         timeout=60,
     ).json()
-    saved = call(
-        "photos.saveWallPhoto", token,
-        group_id=config.VK_GROUP_ID,
-        photo=up["photo"], server=up["server"], hash=up["hash"],
-    )[0]
-    return f"photo{saved['owner_id']}_{saved['id']}"
+
+
+def upload_wall_photo(image_bytes: bytes) -> str:
+    """Загружает картинку для поста. Возвращает attachment.
+
+    1) С ключом пользователя — обычная загрузка на стену.
+    2) Без него — загрузка ключом сообщества через сообщения (нужен VK_ADMIN_ID).
+    """
+    if config.VK_USER_TOKEN:
+        token = config.VK_USER_TOKEN
+        server = call("photos.getWallUploadServer", token, group_id=config.VK_GROUP_ID)
+        up = _upload(server["upload_url"], image_bytes)
+        saved = call("photos.saveWallPhoto", token, group_id=config.VK_GROUP_ID,
+                     photo=up["photo"], server=up["server"], hash=up["hash"])[0]
+        return f"photo{saved['owner_id']}_{saved['id']}"
+
+    if not config.VK_ADMIN_ID:
+        raise VKError("нет ни ключа пользователя, ни VK_ADMIN_ID — картинку загрузить нечем")
+    token = config.VK_GROUP_TOKEN
+    server = call("photos.getMessagesUploadServer", token, peer_id=config.VK_ADMIN_ID)
+    up = _upload(server["upload_url"], image_bytes)
+    saved = call("photos.saveMessagesPhoto", token,
+                 photo=up["photo"], server=up["server"], hash=up["hash"])[0]
+    attachment = f"photo{saved['owner_id']}_{saved['id']}"
+    if saved.get("access_key"):
+        attachment += f"_{saved['access_key']}"
+    return attachment
 
 
 def create_poll(question: str, answers: list[str]) -> str:
     poll = call(
-        "polls.create", config.VK_USER_TOKEN,
+        "polls.create", config.VK_USER_TOKEN or config.VK_GROUP_TOKEN,
         question=question,
         add_answers=json.dumps(answers, ensure_ascii=False),
         owner_id=-config.VK_GROUP_ID,
@@ -67,7 +85,15 @@ def wall_post(message: str, attachments: list[str] | None = None) -> int:
     if attachments:
         params["attachments"] = ",".join(attachments)
     token = config.VK_USER_TOKEN or config.VK_GROUP_TOKEN
-    return call("wall.post", token, **params)["post_id"]
+    try:
+        return call("wall.post", token, **params)["post_id"]
+    except VKError as exc:
+        if "attachments" not in params:
+            raise
+        # ВК не принял вложение — публикуем пост без него, чтобы рубрика не пропала.
+        print(f"[vk] вложение не принято ({exc}), публикую без него")
+        params.pop("attachments")
+        return call("wall.post", token, **params)["post_id"]
 
 
 # ---------- Сообщения (ключ сообщества) ----------

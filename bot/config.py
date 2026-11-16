@@ -1,4 +1,9 @@
-"""Настройки бота. Все секреты берутся из переменных окружения (GitHub Secrets)."""
+"""Настройки бота.
+
+Секреты приходят из GitHub Secrets, обычные настройки — из GitHub Variables
+(все переменные репозитория передаются разом через VARS_JSON).
+"""
+import json
 import os
 from pathlib import Path
 
@@ -6,27 +11,38 @@ ROOT = Path(__file__).resolve().parent.parent
 DATA = ROOT / "data"
 STATE_FILE = ROOT / "state.json"
 
-VK_GROUP_ID = int(os.getenv("VK_GROUP_ID", "243319848"))
+try:
+    _VARS = json.loads(os.getenv("VARS_JSON") or "{}")
+except ValueError:
+    _VARS = {}
+
+
+def _get(name: str, default: str = "") -> str:
+    return os.getenv(name) or _VARS.get(name) or default
+
+
+VK_GROUP_ID = int(_get("VK_GROUP_ID", "243319848"))
 VK_API_VERSION = "5.199"
 
-# Ключ пользователя-админа: нужен для wall.post, загрузки фото и опросов.
-VK_USER_TOKEN = os.getenv("VK_USER_TOKEN", "")
-# Ключ сообщества: нужен для бота в сообщениях.
-VK_GROUP_TOKEN = os.getenv("VK_GROUP_TOKEN", "")
+# Ключ пользователя-админа (необязательно): даёт загрузку фото напрямую на стену.
+VK_USER_TOKEN = _get("VK_USER_TOKEN")
+# Ключ сообщества: посты на стену и бот в сообщениях.
+VK_GROUP_TOKEN = _get("VK_GROUP_TOKEN")
+# Числовой ID страницы админа: нужен, чтобы загружать картинки ключом сообщества.
+VK_ADMIN_ID = _get("VK_ADMIN_ID")
 
-# Ключ авторизации GigaChat (Authorization key из личного кабинета, base64).
-GIGACHAT_AUTH_KEY = os.getenv("GIGACHAT_AUTH_KEY", "")
-GIGACHAT_SCOPE = os.getenv("GIGACHAT_SCOPE", "GIGACHAT_API_PERS")
-# Путь к сертификату Минцифры (russian_trusted_root_ca.cer). Пусто = без проверки SSL.
-GIGACHAT_CA_BUNDLE = os.getenv("GIGACHAT_CA_BUNDLE", "")
+GIGACHAT_AUTH_KEY = _get("GIGACHAT_AUTH_KEY")
+GIGACHAT_SCOPE = _get("GIGACHAT_SCOPE", "GIGACHAT_API_PERS")
+# GigaChat, GigaChat-Pro или GigaChat-Max. Если на модель нет лимита — бот откатится на GigaChat.
+GIGACHAT_MODEL = _get("GIGACHAT_MODEL", "GigaChat")
+GIGACHAT_CA_BUNDLE = _get("GIGACHAT_CA_BUNDLE")
 
-PIXABAY_KEY = os.getenv("PIXABAY_KEY", "")
+PIXABAY_KEY = _get("PIXABAY_KEY")
+GUIDE_URL = _get("GUIDE_URL")
 
-# Ссылка на статью с гайдом в сообществе.
-GUIDE_URL = os.getenv("GUIDE_URL", "")
-
-# 1 = в рубриках разрешены партнёрские ссылки (только офферы с erid).
-MONETIZATION = os.getenv("MONETIZATION", "0") == "1"
-
-# Режим проверки: ничего не публикует, печатает пост в лог.
-DRY_RUN = os.getenv("DRY_RUN", "0") == "1"
+# 1 = рисовать картинки к постам через GigaChat
+IMAGES = _get("IMAGES", "1") == "1"
+# 1 = в рубриках разрешены партнёрские ссылки (только офферы с erid)
+MONETIZATION = _get("MONETIZATION", "0") == "1"
+# 1 = ничего не публиковать, только печатать пост в лог
+DRY_RUN = _get("DRY_RUN", "0") == "1"

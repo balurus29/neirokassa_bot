@@ -1,4 +1,5 @@
-"""Клиент GigaChat API (Сбер)."""
+"""Клиент GigaChat API (Сбер): текст и картинки (Kandinsky внутри GigaChat)."""
+import re
 import uuid
 
 import requests
@@ -7,7 +8,7 @@ import urllib3
 from . import config
 
 OAUTH_URL = "https://ngw.devices.sberbank.ru:9443/api/v2/oauth"
-CHAT_URL = "https://gigachat.devices.sberbank.ru/api/v1/chat/completions"
+API_URL = "https://gigachat.devices.sberbank.ru/api/v1"
 
 _token: str | None = None
 
@@ -43,21 +44,56 @@ def _get_token() -> str:
     return _token
 
 
-def ask(system: str, user: str, temperature: float = 0.7, max_tokens: int = 900) -> str:
+def _chat(payload: dict) -> dict:
     resp = requests.post(
-        CHAT_URL,
+        f"{API_URL}/chat/completions",
         headers={"Authorization": f"Bearer {_get_token()}", "Accept": "application/json"},
-        json={
-            "model": "GigaChat",
-            "messages": [
-                {"role": "system", "content": system},
-                {"role": "user", "content": user},
-            ],
-            "temperature": temperature,
-            "max_tokens": max_tokens,
-        },
-        verify=_verify(),
-        timeout=90,
+        json=payload, verify=_verify(), timeout=120,
     )
     resp.raise_for_status()
-    return resp.json()["choices"][0]["message"]["content"].strip()
+    return resp.json()["choices"][0]["message"]
+
+
+def ask(system: str, user: str, temperature: float = 0.7, max_tokens: int = 1500) -> str:
+    payload = {
+        "model": config.GIGACHAT_MODEL,
+        "messages": [{"role": "system", "content": system}, {"role": "user", "content": user}],
+        "temperature": temperature,
+        "max_tokens": max_tokens,
+    }
+    try:
+        return _chat(payload)["content"].strip()
+    except requests.HTTPError as exc:
+        # Если на выбранную модель нет лимита — откатываемся на базовую.
+        if config.GIGACHAT_MODEL == "GigaChat":
+            raise
+        print(f"[gigachat] модель {config.GIGACHAT_MODEL} недоступна ({exc}), беру GigaChat")
+        payload["model"] = "GigaChat"
+        return _chat(payload)["content"].strip()
+
+
+def draw(prompt: str) -> bytes | None:
+    """Генерирует картинку. Возвращает байты JPG или None, если не получилось."""
+    try:
+        message = _chat({
+            "model": config.GIGACHAT_MODEL,
+            "messages": [
+                {"role": "system", "content": "Ты — художник-иллюстратор."},
+                {"role": "user", "content": prompt},
+            ],
+            "function_call": "auto",
+        })
+        match = re.search(r'<img[^>]+src="([^"]+)"', message.get("content", ""))
+        if not match:
+            print("[gigachat] картинка не сгенерирована: в ответе нет изображения")
+            return None
+        resp = requests.get(
+            f"{API_URL}/files/{match.group(1)}/content",
+            headers={"Authorization": f"Bearer {_get_token()}", "Accept": "application/jpg"},
+            verify=_verify(), timeout=120,
+        )
+        resp.raise_for_status()
+        return resp.content
+    except Exception as exc:
+        print(f"[gigachat] картинка не сгенерирована: {exc}")
+        return None
