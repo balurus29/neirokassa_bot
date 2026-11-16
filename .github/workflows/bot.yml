@@ -31,14 +31,11 @@ jobs:
 
       - name: Запуск
         env:
-          VK_GROUP_ID: "243319848"
           VK_USER_TOKEN: ${{ secrets.VK_USER_TOKEN }}
           VK_GROUP_TOKEN: ${{ secrets.VK_GROUP_TOKEN }}
           GIGACHAT_AUTH_KEY: ${{ secrets.GIGACHAT_AUTH_KEY }}
           PIXABAY_KEY: ${{ secrets.PIXABAY_KEY }}
-          GUIDE_URL: ${{ vars.GUIDE_URL }}
-          MONETIZATION: ${{ vars.MONETIZATION }}
-          DRY_RUN: ${{ vars.DRY_RUN }}
+          VARS_JSON: ${{ toJSON(vars) }}
         run: python -m bot.main "${{ github.event.inputs.task }}"
 
       - name: Сохранить state.json
