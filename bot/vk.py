@@ -80,20 +80,27 @@ def create_poll(question: str, answers: list[str]) -> str:
 
 
 def wall_post(message: str, attachments: list[str] | None = None) -> int:
-    """Публикует пост. Если ключа пользователя нет — пробует ключом сообщества."""
-    params = dict(owner_id=-config.VK_GROUP_ID, from_group=1, message=message)
-    if attachments:
-        params["attachments"] = ",".join(attachments)
-    token = config.VK_USER_TOKEN or config.VK_GROUP_TOKEN
-    try:
-        return call("wall.post", token, **params)["post_id"]
-    except VKError as exc:
-        if "attachments" not in params:
-            raise
-        # ВК не принял вложение — публикуем пост без него, чтобы рубрика не пропала.
-        print(f"[vk] вложение не принято ({exc}), публикую без него")
-        params.pop("attachments")
-        return call("wall.post", token, **params)["post_id"]
+    """Публикует пост. Пробует по очереди, чтобы рубрика не пропала:
+    ключ пользователя с вложениями → ключ сообщества с вложениями → ключ сообщества без них."""
+    base = dict(owner_id=-config.VK_GROUP_ID, from_group=1, message=message)
+    attempts = []
+    if config.VK_USER_TOKEN:
+        attempts.append(("пользователя", config.VK_USER_TOKEN, attachments))
+    if config.VK_GROUP_TOKEN:
+        if attachments:
+            attempts.append(("сообщества", config.VK_GROUP_TOKEN, attachments))
+        attempts.append(("сообщества, без вложений", config.VK_GROUP_TOKEN, None))
+    last_exc = None
+    for name, token, att in attempts:
+        params = dict(base)
+        if att:
+            params["attachments"] = ",".join(att)
+        try:
+            return call("wall.post", token, **params)["post_id"]
+        except VKError as exc:
+            last_exc = exc
+            print(f"[vk] не вышло с ключом {name}: {exc}")
+    raise last_exc or VKError("нет ключей для публикации")
 
 
 # ---------- Сообщения (ключ сообщества) ----------
