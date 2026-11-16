@@ -87,13 +87,20 @@ def draw(prompt: str) -> bytes | None:
         if not match:
             print("[gigachat] картинка не сгенерирована: в ответе нет изображения")
             return None
-        resp = requests.get(
-            f"{API_URL}/files/{match.group(1)}/content",
-            headers={"Authorization": f"Bearer {_get_token()}", "Accept": "application/jpg"},
-            verify=_verify(), timeout=120,
-        )
-        resp.raise_for_status()
-        return resp.content
+        last_exc = None
+        for attempt in range(3):  # скачивание иногда подвисает — пробуем ещё раз
+            try:
+                resp = requests.get(
+                    f"{API_URL}/files/{match.group(1)}/content",
+                    headers={"Authorization": f"Bearer {_get_token()}", "Accept": "application/jpg"},
+                    verify=_verify(), timeout=(15, 90),
+                )
+                resp.raise_for_status()
+                return resp.content
+            except requests.RequestException as exc:
+                last_exc = exc
+                print(f"[gigachat] скачивание картинки, попытка {attempt + 1}: {exc}")
+        raise last_exc
     except Exception as exc:
         print(f"[gigachat] картинка не сгенерирована: {exc}")
         return None
