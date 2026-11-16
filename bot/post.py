@@ -1,6 +1,6 @@
 """Автопостинг.
 
-08:40 — «Новинки ИИ» из новостных лент (с превью ссылки на источник).
+08:40 — «Новинки ИИ» из новостных лент.
 12:40 и 19:40 — рубрики по расписанию content.SCHEDULE (с картинкой от GigaChat).
 """
 import json
@@ -79,8 +79,6 @@ def publish(text: str, image: bytes | None = None, link: str | None = None,
             attachments.append(vk.upload_wall_photo(image))
         except Exception as exc:  # без картинки пост всё равно выходит
             print(f"[image] не удалось загрузить фото: {exc}")
-    if link and not image:
-        attachments.append(link)  # ВК сам сделает карточку с картинкой из статьи
     post_id = vk.wall_post(text, attachments)
     print(f"Опубликован пост {post_id}")
 
@@ -100,7 +98,7 @@ def morning(state: dict) -> None:
             print(f"[news] не по теме, пропускаю: {item['title']}")
             continue
         post = f"#НовинкиИИ\n{tidy(text)}\n\nИсточник: {item['link']}"
-        publish(post, link=item["link"])
+        publish(post, image=make_image(f"новость: {item['title']}"))
         state["week_news"].append(item["title"])
         return
     print("Подходящих новостей нет — утренний пост пропущен")
