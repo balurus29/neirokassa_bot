@@ -1,4 +1,4 @@
-"""Точка входа: python -m bot.main morning|day|evening|inbox"""
+"""Точка входа: python -m bot.main morning|day|afternoon|evening|inbox"""
 import sys
 
 from . import inbox, post
@@ -8,10 +8,10 @@ def main() -> None:
     task = sys.argv[1] if len(sys.argv) > 1 else ""
     if task == "inbox":
         inbox.run()
-    elif task in ("morning", "day", "evening"):
+    elif task in ("morning", "afternoon", "day", "evening"):
         post.run(task)
     else:
-        raise SystemExit("Укажи задачу: morning, day, evening или inbox")
+        raise SystemExit("Укажи задачу: morning, day, afternoon, evening или inbox")
 
 
 if __name__ == "__main__":

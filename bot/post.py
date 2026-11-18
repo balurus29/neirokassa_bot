@@ -1,6 +1,7 @@
 """Автопостинг.
 
 08:40 — «Новинки ИИ» из новостных лент.
+16:40 — вторая новинка за сутки или «Быстрый совет».
 12:40 и 19:40 — рубрики по расписанию content.SCHEDULE (с картинкой от GigaChat).
 """
 import json
@@ -104,8 +105,9 @@ def send_image_to_admin(image: bytes, post_id: int, text: str) -> None:
 
 # ---------- утро: новинки ----------
 
-def morning(state: dict) -> None:
-    items = news.fresh_items(set(state["posted_links"]))
+def news_post(state: dict, max_age_days: int) -> bool:
+    """Публикует свежую новинку. Возвращает True, если пост вышел."""
+    items = news.fresh_items(set(state["posted_links"]), max_age_days)
     for item in items[:6]:
         text = gigachat.ask(
             content.SYSTEM_PROMPT,
@@ -119,8 +121,21 @@ def morning(state: dict) -> None:
         post = f"#НовинкиИИ\n{tidy(text)}\n\nИсточник: {item['link']}"
         publish(post, image=make_image(f"новость: {item['title']}"))
         state["week_news"].append(item["title"])
+        return True
+    return False
+
+
+def morning(state: dict) -> None:
+    if not news_post(state, max_age_days=3):
+        print("Подходящих новостей нет — утренний пост пропущен")
+
+
+def afternoon(state: dict, today) -> None:
+    """16:40 — вторая новинка, если за сутки вышло что-то стоящее, иначе быстрый совет."""
+    if news_post(state, max_age_days=1):
         return
-    print("Подходящих новостей нет — утренний пост пропущен")
+    print("[news] свежих новостей за сутки нет — публикую быстрый совет")
+    rubric_post(state, "quick", today)
 
 
 # ---------- рубрики ----------
@@ -193,6 +208,8 @@ def run(slot: str) -> None:
     state = load_state()
     if slot == "morning":
         morning(state)
+    elif slot == "afternoon":
+        afternoon(state, today)
     elif slot == "day":
         scheduled(state, today, 0)
     elif slot == "evening":

@@ -78,7 +78,7 @@ def clean_link(link: str) -> str:
     return link.split("?", 1)[0].split("#", 1)[0]
 
 
-def fresh_items(seen_links: set[str]) -> list[dict]:
+def fresh_items(seen_links: set[str], max_age_days: int = 3) -> list[dict]:
     feeds = json.loads((config.DATA / "feeds.json").read_text(encoding="utf-8"))
     items = []
     for url in feeds:
@@ -91,9 +91,8 @@ def fresh_items(seen_links: set[str]) -> list[dict]:
     for i in items:
         i["link"] = clean_link(i["link"])
     items = [i for i in items if i["link"] not in seen_links and is_about_ai(i)]
-    # Не старше трёх дней: «новинки» должны быть новыми.
-    fresh_after = datetime.now(timezone.utc) - timedelta(days=3)
-    recent = [i for i in items if i["date"] >= fresh_after]
-    items = recent or items
+    # «Новинки» должны быть новыми: старше max_age_days не берём.
+    fresh_after = datetime.now(timezone.utc) - timedelta(days=max_age_days)
+    items = [i for i in items if i["date"] >= fresh_after]
     items.sort(key=lambda i: i["date"], reverse=True)
     return items
