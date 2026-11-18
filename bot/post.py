@@ -67,20 +67,39 @@ def make_image(topic: str) -> bytes | None:
     return img or pixabay_image("artificial intelligence technology")
 
 
-def publish(text: str, image: bytes | None = None, link: str | None = None,
-            extra: list[str] | None = None) -> None:
+def publish(text: str, image: bytes | None = None, extra: list[str] | None = None) -> None:
     if config.DRY_RUN:
-        note = f"[картинка {len(image)} байт]" if image else ("[превью ссылки]" if link else "[без картинки]")
+        note = f"[картинка {len(image)} байт]" if image else "[без картинки]"
         print(f"----- DRY RUN {note} -----\n{text}\n-------------------")
         return
     attachments = list(extra or [])
-    if image:
+    on_wall = False
+    if image and config.VK_USER_TOKEN:
         try:
             attachments.append(vk.upload_wall_photo(image))
-        except Exception as exc:  # без картинки пост всё равно выходит
-            print(f"[image] не удалось загрузить фото: {exc}")
+            on_wall = True
+        except Exception as exc:
+            print(f"[image] не удалось загрузить фото на стену: {exc}")
     post_id = vk.wall_post(text, attachments)
     print(f"Опубликован пост {post_id}")
+    if image and not on_wall:
+        send_image_to_admin(image, post_id, text)
+
+
+def send_image_to_admin(image: bytes, post_id: int, text: str) -> None:
+    """Полуавтомат: картинка к посту приходит админу в личные сообщения."""
+    if not config.VK_ADMIN_ID:
+        print("[image] VK_ADMIN_ID не задан — картинку отправить некому")
+        return
+    title = next((line for line in text.splitlines() if line and not line.startswith("#")), "")[:80]
+    link = f"https://vk.com/wall-{config.VK_GROUP_ID}_{post_id}"
+    message = (f"🖼 Картинка к новому посту «{title}»\n{link}\n\n"
+               "Сохрани картинку → открой пост → ⋯ → Редактировать → прикрепи фото → Сохранить.")
+    try:
+        vk.send_photo(config.VK_ADMIN_ID, image, message)
+        print("[image] картинка отправлена админу в сообщения")
+    except Exception as exc:
+        print(f"[image] не удалось отправить картинку админу: {exc}")
 
 
 # ---------- утро: новинки ----------

@@ -43,30 +43,29 @@ def _upload(server_url: str, image_bytes: bytes) -> dict:
 
 
 def upload_wall_photo(image_bytes: bytes) -> str:
-    """Загружает картинку для поста. Возвращает attachment.
+    """Загружает картинку прямо на стену. Работает только с ключом пользователя."""
+    if not config.VK_USER_TOKEN:
+        raise VKError("нет ключа пользователя — прямая загрузка на стену недоступна")
+    token = config.VK_USER_TOKEN
+    server = call("photos.getWallUploadServer", token, group_id=config.VK_GROUP_ID)
+    up = _upload(server["upload_url"], image_bytes)
+    saved = call("photos.saveWallPhoto", token, group_id=config.VK_GROUP_ID,
+                 photo=up["photo"], server=up["server"], hash=up["hash"])[0]
+    return f"photo{saved['owner_id']}_{saved['id']}"
 
-    1) С ключом пользователя — обычная загрузка на стену.
-    2) Без него — загрузка ключом сообщества через сообщения (нужен VK_ADMIN_ID).
-    """
-    if config.VK_USER_TOKEN:
-        token = config.VK_USER_TOKEN
-        server = call("photos.getWallUploadServer", token, group_id=config.VK_GROUP_ID)
-        up = _upload(server["upload_url"], image_bytes)
-        saved = call("photos.saveWallPhoto", token, group_id=config.VK_GROUP_ID,
-                     photo=up["photo"], server=up["server"], hash=up["hash"])[0]
-        return f"photo{saved['owner_id']}_{saved['id']}"
 
-    if not config.VK_ADMIN_ID:
-        raise VKError("нет ни ключа пользователя, ни VK_ADMIN_ID — картинку загрузить нечем")
+def send_photo(peer_id: int | str, image_bytes: bytes, text: str) -> None:
+    """Отправляет картинку в личные сообщения от имени сообщества (ключ сообщества)."""
     token = config.VK_GROUP_TOKEN
-    server = call("photos.getMessagesUploadServer", token, peer_id=config.VK_ADMIN_ID)
+    server = call("photos.getMessagesUploadServer", token, peer_id=peer_id)
     up = _upload(server["upload_url"], image_bytes)
     saved = call("photos.saveMessagesPhoto", token,
                  photo=up["photo"], server=up["server"], hash=up["hash"])[0]
     attachment = f"photo{saved['owner_id']}_{saved['id']}"
     if saved.get("access_key"):
         attachment += f"_{saved['access_key']}"
-    return attachment
+    call("messages.send", token, peer_id=peer_id, message=text, attachment=attachment,
+         random_id=random.randint(1, 2**31 - 1))
 
 
 def create_poll(question: str, answers: list[str]) -> str:
