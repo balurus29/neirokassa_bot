@@ -67,7 +67,8 @@ AI_WORDS = ("нейросет", "нейронн", "искусственн", "м�
 
 
 def is_about_ai(item: dict) -> bool:
-    text = f"{item['title']} {item['summary']}"
+    """ИИ должен быть в заголовке: упоминание вскользь в тексте не считается."""
+    text = item["title"]
     low = text.lower()
     return bool(AI_ABBR.search(text)) or any(w in low for w in AI_WORDS)
 
