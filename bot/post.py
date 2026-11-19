@@ -125,9 +125,12 @@ def news_post(state: dict, max_age_days: int) -> bool:
     return False
 
 
-def morning(state: dict) -> None:
-    if not news_post(state, max_age_days=3):
-        print("Подходящих новостей нет — утренний пост пропущен")
+def morning(state: dict, today) -> None:
+    """08:40 — новинка за последние 3 дня; если подходящих нет — быстрый совет, пост выходит всегда."""
+    if news_post(state, max_age_days=3):
+        return
+    print("[news] подходящих новостей нет — публикую быстрый совет")
+    rubric_post(state, "quick", today)
 
 
 def afternoon(state: dict, today) -> None:
@@ -207,7 +210,7 @@ def run(slot: str) -> None:
     today = datetime.now(MSK).date()
     state = load_state()
     if slot == "morning":
-        morning(state)
+        morning(state, today)
     elif slot == "afternoon":
         afternoon(state, today)
     elif slot == "day":
