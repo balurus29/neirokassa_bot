@@ -25,7 +25,12 @@
     "https://habr.com/ru/companies/selectel/articles/1110360/",
     "https://habr.com/ru/articles/1110406/",
     "https://habr.com/ru/articles/1110558/",
-    "https://habr.com/ru/companies/otus/articles/1106704/"
+    "https://habr.com/ru/companies/otus/articles/1106704/",
+    "https://techcrunch.com/2026/11/21/signal-restricts-mobile-screenshots-as-it-confronts-existential-threat-of-ai-surveillance/",
+    "https://habr.com/ru/articles/1110766/",
+    "https://techcrunch.com/2026/11/21/all-the-ai-agents-that-can-live-in-your-text-messages/",
+    "https://techcrunch.com/2026/11/21/is-selling-an-ai-version-of-your-face-to-this-microdrama-startup-the-future-of-hollywood/",
+    "https://habr.com/ru/articles/1110726/"
   ],
   "week_news": [
     "Уволили специалистов ради ИИ. А кто через пять лет будет ставить ему задачи?",
@@ -35,7 +40,8 @@
     "Google is putting AI chats right on the homepage",
     "Представлен ChatGPT for SNES",
     "Доказательство гипотезы Римана с помощью ИИ",
-    "[Перевод] Дообучаем на Mac малую языковую модель для RAG в браузере"
+    "[Перевод] Дообучаем на Mac малую языковую модель для RAG в браузере",
+    "Представлен ClawDOS — ИИ‑агент для написания кода в среде DOS"
   ],
   "recent_topics": [
     "Написать шаблон письма клиентам? Легко!",
