@@ -30,7 +30,13 @@
     "https://habr.com/ru/articles/1110766/",
     "https://techcrunch.com/2026/11/21/all-the-ai-agents-that-can-live-in-your-text-messages/",
     "https://techcrunch.com/2026/11/21/is-selling-an-ai-version-of-your-face-to-this-microdrama-startup-the-future-of-hollywood/",
-    "https://habr.com/ru/articles/1110726/"
+    "https://habr.com/ru/articles/1110726/",
+    "https://habr.com/ru/articles/1110942/",
+    "https://techcrunch.com/2026/11/22/how-notable-capital-gic-and-baillie-gifford-bet-big-on-anthropic-before-its-ipo/",
+    "https://habr.com/ru/articles/1111006/",
+    "https://techcrunch.com/2026/11/22/openais-chief-scientist-has-thoughts-on-how-to-limit-ai-development/",
+    "https://habr.com/ru/articles/1110956/",
+    "https://habr.com/ru/articles/1109850/"
   ],
   "week_news": [],
   "recent_topics": [
@@ -47,7 +53,8 @@
     "Промт для разбора договора: риски, штрафы, сроки и подводные камни простыми слов",
     "Составить план ремонта комнаты: очерёдность работ, список материалов и примерная",
     "Нейросеть ошибается в арифметике и подсчёте букв: откуда баг и как обойти",
-    "Режим «критик»: попроси нейросеть найти 5 слабых мест в её же ответе — и получи "
+    "Режим «критик»: попроси нейросеть найти 5 слабых мест в её же ответе — и получи ",
+    "Добавь в конец запроса «задай мне 3 уточняющих вопроса» — ответ станет точнее"
   ],
   "offer_index": 0,
   "topic_index": {
@@ -56,6 +63,7 @@
     "bug": 2,
     "task": 2,
     "lifehack": 2,
-    "top": 1
+    "top": 1,
+    "quick": 1
   }
 }
