@@ -36,9 +36,12 @@
     "https://habr.com/ru/articles/1111006/",
     "https://techcrunch.com/2026/11/22/openais-chief-scientist-has-thoughts-on-how-to-limit-ai-development/",
     "https://habr.com/ru/articles/1110956/",
-    "https://habr.com/ru/articles/1109850/"
+    "https://habr.com/ru/articles/1109850/",
+    "https://habr.com/ru/articles/1111548/"
   ],
-  "week_news": [],
+  "week_news": [
+    "Как отдавать письма клиентов во внешнюю LLM и не отдавать их персональные данные"
+  ],
   "recent_topics": [
     "Написать шаблон письма клиентам? Легко!",
     "Написать уникальное сочинение для школы? Попробуй нейросеть!",
