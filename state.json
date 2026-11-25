@@ -40,7 +40,13 @@
     "https://habr.com/ru/articles/1111548/",
     "https://habr.com/ru/articles/1111836/",
     "https://habr.com/ru/articles/1111828/",
-    "https://habr.com/ru/companies/k2tech/articles/1111826/"
+    "https://habr.com/ru/companies/k2tech/articles/1111826/",
+    "https://habr.com/ru/articles/1111976/",
+    "https://techcrunch.com/2026/11/24/even-the-best-ai-agents-struggle-with-everyday-life/",
+    "https://techcrunch.com/2026/11/24/walmart-teams-up-with-meta-to-bring-black-friday-deals-to-ai-agent-muse/",
+    "https://techcrunch.com/2026/11/24/maple-raises-5-3m-to-build-ai-products-that-protect-your-data-even-from-itself/",
+    "https://habr.com/ru/articles/1111960/",
+    "https://techcrunch.com/2026/11/24/anthropic-shares-fall-below-ipo-price-a-worrying-sign-for-ai-startups/"
   ],
   "week_news": [
     "Как отдавать письма клиентов во внешнюю LLM и не отдавать их персональные данные",
@@ -65,7 +71,8 @@
     "Таблица вместо текста: как получать ответ сразу в виде таблицы и вставлять её в ",
     "Обложки и превью для видео в VK Видео и YouTube",
     "Промт «адвокат дьявола»: нейросеть беспощадно проверяет твою бизнес-идею",
-    "Кривые надписи на сгенерированных картинках: почему так и что делать"
+    "Кривые надписи на сгенерированных картинках: почему так и что делать",
+    "Попроси «ответь как таблица: вариант, плюсы, минусы» — сравнение за секунду"
   ],
   "offer_index": 0,
   "topic_index": {
@@ -75,6 +82,6 @@
     "task": 2,
     "lifehack": 3,
     "top": 1,
-    "quick": 1
+    "quick": 2
   }
 }
