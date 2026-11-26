@@ -48,7 +48,13 @@
     "https://habr.com/ru/articles/1111960/",
     "https://techcrunch.com/2026/11/24/anthropic-shares-fall-below-ipo-price-a-worrying-sign-for-ai-startups/",
     "https://habr.com/ru/articles/1112254/",
-    "https://habr.com/ru/articles/1112294/"
+    "https://habr.com/ru/articles/1112294/",
+    "https://habr.com/ru/companies/otus/articles/1111806/",
+    "https://habr.com/ru/articles/1112482/",
+    "https://habr.com/ru/articles/1112460/",
+    "https://www.theverge.com/entertainment/1042221/google-my-channel-ai-video-patent",
+    "https://habr.com/ru/articles/1112452/",
+    "https://habr.com/ru/companies/gptunnel/articles/1112424/"
   ],
   "week_news": [
     "Как отдавать письма клиентов во внешнюю LLM и не отдавать их персональные данные",
@@ -77,7 +83,8 @@
     "Кривые надписи на сгенерированных картинках: почему так и что делать",
     "Попроси «ответь как таблица: вариант, плюсы, минусы» — сравнение за секунду",
     "Написать сложную формулу для Excel или Google Таблиц, которую не можешь сформули",
-    "Обработка и улучшение фото товаров для небольших магазинов"
+    "Обработка и улучшение фото товаров для небольших магазинов",
+    "Фраза «объясни на примере из жизни» делает сложное понятным"
   ],
   "offer_index": 0,
   "topic_index": {
@@ -87,6 +94,6 @@
     "task": 3,
     "lifehack": 3,
     "top": 1,
-    "quick": 2
+    "quick": 3
   }
 }
