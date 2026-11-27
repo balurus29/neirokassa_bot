@@ -60,12 +60,18 @@
     "https://habr.com/ru/articles/1112848/",
     "https://habr.com/ru/articles/1112816/",
     "https://habr.com/ru/companies/cloud_ru/articles/1112680/",
-    "https://habr.com/ru/articles/1112810/"
+    "https://habr.com/ru/articles/1112810/",
+    "https://habr.com/ru/companies/ru_mts/articles/1113132/",
+    "https://habr.com/ru/companies/beeline_tech/articles/1113160/",
+    "https://habr.com/ru/companies/ru_mts/articles/1108908/",
+    "https://habr.com/ru/articles/1113126/",
+    "https://habr.com/ru/companies/sberbank/articles/1112286/"
   ],
   "week_news": [
     "Как отдавать письма клиентов во внешнюю LLM и не отдавать их персональные данные",
     "Как запустить ИИ внутрь 1С, но не открыть ему лишнего",
-    "Anthropic разрешили ставить артефакты Claude как приложения на Mac и Windows"
+    "Anthropic разрешили ставить артефакты Claude как приложения на Mac и Windows",
+    "GigaEdge LLM: модель на 129 млн параметров для умного дома"
   ],
   "recent_topics": [
     "Написать шаблон письма клиентам? Легко!",
