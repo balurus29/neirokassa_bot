@@ -54,7 +54,13 @@
     "https://habr.com/ru/articles/1112460/",
     "https://www.theverge.com/entertainment/1042221/google-my-channel-ai-video-patent",
     "https://habr.com/ru/articles/1112452/",
-    "https://habr.com/ru/companies/gptunnel/articles/1112424/"
+    "https://habr.com/ru/companies/gptunnel/articles/1112424/",
+    "https://habr.com/ru/articles/1112882/",
+    "https://habr.com/ru/articles/1110796/",
+    "https://habr.com/ru/articles/1112848/",
+    "https://habr.com/ru/articles/1112816/",
+    "https://habr.com/ru/companies/cloud_ru/articles/1112680/",
+    "https://habr.com/ru/articles/1112810/"
   ],
   "week_news": [
     "Как отдавать письма клиентов во внешнюю LLM и не отдавать их персональные данные",
@@ -86,7 +92,8 @@
     "Обработка и улучшение фото товаров для небольших магазинов",
     "Фраза «объясни на примере из жизни» делает сложное понятным",
     "Голос + нейросеть: надиктуй мысли в дороге, а дома получи из них готовый план ил",
-    "сделать картинку для поста"
+    "сделать картинку для поста",
+    "Напиши «сократи вдвое, сохрани смысл» — и любой текст станет читабельнее"
   ],
   "offer_index": 0,
   "topic_index": {
@@ -96,6 +103,6 @@
     "task": 3,
     "lifehack": 4,
     "top": 2,
-    "quick": 3
+    "quick": 4
   }
 }
